@@ -21,7 +21,7 @@ public class AuthService  {
     /**
      * Registers a new user and stores the password encrypted
      *
-     * @param request registration data
+     * @param registerRequest registration data
      * @return authentication response containing JWT token
      */
     public AuthResponse register(RegisterRequest registerRequest) {
@@ -29,8 +29,8 @@ public class AuthService  {
             throw new RuntimeException("Username already exists");
         }
         User user = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPaswword()))
+                .username(registerRequest.getUsername())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
 
         userRepository.save(user);

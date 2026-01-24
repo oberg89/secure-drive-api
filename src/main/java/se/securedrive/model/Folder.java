@@ -1,4 +1,4 @@
-package se.securedrive.model.;
+package se.securedrive.model;
 
 import  jakarta.persistence.*;
 import lombok.*;
