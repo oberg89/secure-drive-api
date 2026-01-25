@@ -3,6 +3,7 @@ package se.securedrive.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import se.securedrive.dto.FileSummary;
 import se.securedrive.model.FileEntity;
 import se.securedrive.model.Folder;
@@ -12,6 +13,7 @@ import se.securedrive.repository.FolderRepository;
 
 import java.io.IOException;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +33,10 @@ public class FileService {
 
     public FileEntity uploadFile(MultipartFile file, Long folderId, User user){
         Folder folder = folderRepository.findById(folderId)
-                .orElseThrow(() -> new RuntimeException("Folder not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Folder not found"));
 
         if (!folder.getOwner().getId().equals(user.getId())){
-            throw new RuntimeException("Access denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
         try {
             FileEntity fileEntity = FileEntity.builder()
@@ -46,7 +48,7 @@ public class FileService {
 
             return fileRepository.save(fileEntity);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to upload file");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file");
         }
     }
     /**
@@ -58,10 +60,10 @@ public class FileService {
      */
     public FileEntity downloadFile(Long fileId, User user) {
         FileEntity file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new RuntimeException("File not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
 
         if (!file.getOwner().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
         return file;
@@ -75,10 +77,10 @@ public class FileService {
      */
     public void deleteFile(Long fileId, User user) {
         FileEntity file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new RuntimeException("File not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
 
         if (!file.getOwner().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
         fileRepository.delete(file);

@@ -44,8 +44,8 @@ http://localhost:8080
 POST /api/auth/register
 ```json
 {
-  "username": "stefan",
-  "password": "password123"
+  "username": "användarnamn",
+  "password": "Lösenord"
 }
 ```
 
@@ -53,8 +53,8 @@ POST /api/auth/register
 POST /api/auth/login
 ```json
 {
-  "username": "stefan",
-  "password": "password123"
+  "username": "användarnamn",
+  "password": "Lösenord"
 }
 ```
 

@@ -7,6 +7,7 @@ import se.securedrive.dto.FolderSummary;
 import se.securedrive.model.Folder;
 import se.securedrive.model.User;
 import se.securedrive.service.FolderService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -20,14 +21,14 @@ public class FolderController {
     @PostMapping
     public FolderSummary createFolder(
             @RequestBody CreateFolderRequest request,
-            @RequestAttribute("user") User user
+            @AuthenticationPrincipal User user
     ) {
         Folder folder = folderService.createFolder(request.getName(), user);
         return new FolderSummary(folder.getId(), folder.getName());
     }
 
     @GetMapping
-    public List<FolderSummary> listFolders(@RequestAttribute("user") User user) {
+    public List<FolderSummary> listFolders(@AuthenticationPrincipal User user) {
         return folderService.listFolders(user);
     }
 }
