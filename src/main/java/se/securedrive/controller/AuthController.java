@@ -8,7 +8,7 @@ import se.securedrive.dto.RegisterRequest;
 import se.securedrive.service.AuthService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

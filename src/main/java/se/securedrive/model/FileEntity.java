@@ -19,8 +19,7 @@ public class FileEntity {
     @Column(nullable = false)
     private String filename;
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bytea")
     private byte[] data;
 
     @ManyToOne(optional = false)

@@ -6,24 +6,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import se.securedrive.dto.FileSummary;
 import se.securedrive.model.FileEntity;
 import se.securedrive.model.User;
 import se.securedrive.service.FileService;
 
+import java.util.List;
+import java.nio.charset.StandardCharsets;
+import org.springframework.http.ContentDisposition;
+
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/api/files")
 @RequiredArgsConstructor
 public class FileController {
 
     private final FileService fileService;
 
     @PostMapping("/upload")
-    public FileEntity uploadFile(
+    public FileSummary uploadFile(
             @RequestParam MultipartFile file,
             @RequestParam Long folderId,
             @RequestAttribute("user") User user
     ) {
-        return fileService.uploadFile(file, folderId, user);
+        FileEntity saved = fileService.uploadFile(file, folderId, user);
+        return new FileSummary(saved.getId(), saved.getFilename(), saved.getFolder().getId());
+    }
+
+    @GetMapping
+    public List<FileSummary> listFiles(@RequestAttribute("user") User user) {
+        return fileService.listFiles(user);
     }
 
     @GetMapping("/{id}")
@@ -33,9 +44,13 @@ public class FileController {
     ) {
         FileEntity file = fileService.downloadFile(id, user);
 
+        String filename = file.getFilename();
+        ContentDisposition contentDisposition = ContentDisposition.attachment()
+                .filename(filename, StandardCharsets.UTF_8)
+                .build();
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.getFilename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString())
                 .body(file.getData());
     }
 
