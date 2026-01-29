@@ -1,10 +1,10 @@
 # Secure Drive API
 
-Secure Drive API Ã¤r ett backend-API byggt i **Spring Boot** som fungerar som ett sÃ¤kert filsystem.
+Secure Drive API är ett backend-API byggt i **Spring Boot** som fungerar som ett säkert filsystem.
 
 ## Funktioner
-- Registrera anvÃ¤ndare
-- Logga in och fÃ¥ JWT-token
+- Registrera användare
+- Logga in och få JWT-token
 - Skapa mappar
 - Ladda upp filer till mappar
 - Lista mappar och filer
@@ -33,19 +33,19 @@ Authorization: Bearer <TOKEN>
 ./gradlew bootRun
 ```
 
-API kÃ¶rs pÃ¥:
+API körs på:
 http://localhost:8080
 
 ---
 
-## Bruno â€“ API-kommandon
+## Bruno – API-kommandon
 
-### Registrera anvÃ¤ndare
+### Registrera användare
 POST /api/auth/register
 ```json
 {
-  "username": "anvÃ¤ndarnamn",
-  "password": "LÃ¶senord"
+  "username": "användarnamn",
+  "password": "Lösenord"
 }
 ```
 
@@ -53,8 +53,8 @@ POST /api/auth/register
 POST /api/auth/login
 ```json
 {
-  "username": "anvÃ¤ndarnamn",
-  "password": "LÃ¶senord"
+  "username": "användarnamn",
+  "password": "Lösenord"
 }
 ```
 
@@ -96,8 +96,8 @@ Authorization: Bearer <TOKEN>
 ```
 
 Body (Multipart Form):
-- file â†’ vÃ¤lj fil
-- folderId â†’ 1
+- file ? välj fil
+- folderId ? 1
 
 ---
 
@@ -111,7 +111,7 @@ Authorization: Bearer <TOKEN>
 ---
 
 ### Ladda ner fil
-GET /api/files/{id}/download  
+GET /api/files/{id}  
 Header:
 ```
 Authorization: Bearer <TOKEN>
@@ -128,13 +128,13 @@ Authorization: Bearer <TOKEN>
 
 ---
 
-## SÃ¤kerhet
+## Säkerhet
 - Stateless (JWT)
 - Ingen session
 - CSRF av
-- Endast /api/auth/** Ã¤r publikt
+- Endast /api/auth/** är publikt
 
 ---
 
 ## Sammanfattning
-Projektet visar ett komplett REST-API med JWT-sÃ¤kerhet, filhantering och databasstÃ¶d.
+Projektet visar ett komplett REST-API med JWT-säkerhet, filhantering och databasstöd.
