@@ -18,17 +18,17 @@ import org.springframework.http.HttpStatus;
 public class AuthService  {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /**
-     * Registers a new user and stores the password encrypted
+     * Registrerar en ny användare och lagrar lösenordet krypterat.
      *
-     * @param registerRequest registration data
-     * @return authentication response containing JWT token
+     * @param registerRequest registreringsdata
+     * @return autentiseringssvar med JWT-token
      */
     public AuthResponse register(RegisterRequest registerRequest) {
         if(userRepository.existsByUsername(registerRequest.getUsername())){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Användarnamnet upptaget");
         }
         User user = User.builder()
                 .username(registerRequest.getUsername())
@@ -40,17 +40,17 @@ public class AuthService  {
         return new AuthResponse(jwtUtil.generateToken(user.getUsername()));
     }
     /**
-     * Authenticates a user and returns a JWT token if credentials are valid.
+     * Autentiserar en användare och returnerar en JWT-token om uppgifterna är giltiga.
      *
-     * @param request login data
-     * @return authentication response containing JWT token
+     * @param request inloggningsdata
+     * @return autentiseringssvar med JWT-token
      */
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ogiltiga uppgifter"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Ogiltiga uppgifter");
         }
 
         return new AuthResponse(jwtUtil.generateToken(user.getUsername()));
