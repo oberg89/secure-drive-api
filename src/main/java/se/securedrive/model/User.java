@@ -25,11 +25,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column
     private String password;
+
+    @Column(unique = true)
+    private String email;
+
+    @Column(name = "github_id", unique = true)
+    private String githubId;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Folder> folders;

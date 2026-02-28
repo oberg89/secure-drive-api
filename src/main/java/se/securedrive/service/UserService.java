@@ -14,14 +14,14 @@ public class UserService {
     private final UserRepository userRepository;
 
     /**
-     * Retrieves a user by username.
+     * Hämtar en användare via användarnamn.
      *
-     * @param username the username
-     * @return the user
-     * @throws RuntimeException if user is not found
+     * @param username användarnamnet
+     * @return användaren
+     * @throws ResponseStatusException om användaren inte hittas
      */
     public User getByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Användaren hittades inte"));
     }
 }
