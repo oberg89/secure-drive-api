@@ -14,18 +14,40 @@ Secure Drive API är ett backend-API byggt i **Spring Boot** som fungerar som et
 ## Tekniker
 - Java 25
 - Spring Boot 4
-- Spring Security
+- Spring Security (inkl. OAuth2 Client)
+- Spring HATEOAS
 - JWT
 - PostgreSQL
 - JPA / Hibernate
-- Bruno
 
-## Autentisering (JWT)
+## Autentisering
+### OAuth2 (GitHub) - REKOMMENDERAT
+1. Gå till `/oauth2/authorization/github`
+2. Logga in via GitHub.
+3. Efter lyckad inloggning skapas en användare automatiskt i systemet.
+
+### JWT
 1. Logga in via `/api/auth/login`
 2. Backend returnerar JWT
 3. Skicka token i header:
 ```
 Authorization: Bearer <TOKEN>
+```
+
+---
+
+## HATEOAS
+API:et använder hypermedia (HATEOAS). Svar från mappar och filer innehåller nu länkar till relaterade resurser.
+Exempel på svar för en mapp:
+```json
+{
+  "id": 1,
+  "name": "Skola",
+  "_links": {
+    "self": { "href": "http://localhost:8080/api/folders" },
+    "all-folders": { "href": "http://localhost:8080/api/folders" }
+  }
+}
 ```
 
 ## Starta projektet
@@ -133,6 +155,15 @@ Authorization: Bearer <TOKEN>
 - Ingen session
 - CSRF av
 - Endast /api/auth/** är publikt
+
+---
+
+## Konfiguration av GitHub OAuth2
+För att OAuth2-inloggning ska fungera måste du skapa en **OAuth App** på GitHub:
+1. Gå till **Settings** -> **Developer settings** -> **OAuth Apps** -> **New OAuth App**.
+2. Sätt `Homepage URL` till `http://localhost:8080`.
+3. Sätt `Authorization callback URL` till `http://localhost:8080/login/oauth2/code/github`.
+4. Kopiera `Client ID` och `Client Secret` till din `application.properties` eller sätt dem som miljövariabler (`GITHUB_CLIENT_ID` och `GITHUB_CLIENT_SECRET`).
 
 ---
 
