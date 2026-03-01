@@ -23,20 +23,19 @@ public class FileService {
     private final FolderRepository folderRepository;
 
     /**
-     * Uploads a file to a specific folder owned by the user.
+     * Laddar upp en fil till en specifik mapp som ägs av användaren.
      *
-     * @param file     uploaded file
-     * @param folderId target folder id
-     * @param user     authenticated user
-     * @return saved file entity
+     * @param file     den uppladdade filen
+     * @param folderId målmappens id
+     * @param user     den autentiserade användaren
+     * @return sparad fil-entitet
      */
-
     public FileEntity uploadFile(MultipartFile file, Long folderId, User user){
         Folder folder = folderRepository.findById(folderId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Folder not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mappen hittades inte"));
 
         if (!folder.getOwner().getId().equals(user.getId())){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Åtkomst nekad");
         }
         try {
             FileEntity fileEntity = FileEntity.builder()
@@ -48,49 +47,49 @@ public class FileService {
 
             return fileRepository.save(fileEntity);
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload file");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Misslyckades med att ladda upp fil");
         }
     }
     /**
-     * Downloads a file owned by the user.
+     * Laddar ner en fil som ägs av användaren.
      *
-     * @param fileId file id
-     * @param user   authenticated user
-     * @return file entity
+     * @param fileId filens id
+     * @param user   den autentiserade användaren
+     * @return fil-entitet
      */
     public FileEntity downloadFile(Long fileId, User user) {
         FileEntity file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Filen hittades inte"));
 
         if (!file.getOwner().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Åtkomst nekad");
         }
 
         return file;
     }
 
     /**
-     * Deletes a file owned by the user.
+     * Tar bort en fil som ägs av användaren.
      *
-     * @param fileId file id
-     * @param user   authenticated user
+     * @param fileId filens id
+     * @param user   den autentiserade användaren
      */
     public void deleteFile(Long fileId, User user) {
         FileEntity file = fileRepository.findById(fileId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Filen hittades inte"));
 
         if (!file.getOwner().getId().equals(user.getId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Åtkomst nekad");
         }
 
         fileRepository.delete(file);
     }
 
     /**
-     * Lists files owned by the user (without file data).
+     * Listar filer som ägs av användaren (utan fildata).
      *
-     * @param user authenticated user
-     * @return list of file summaries
+     * @param user den autentiserade användaren
+     * @return lista med filsammanfattningar
      */
     public List<FileSummary> listFiles(User user) {
         return fileRepository.findSummariesByOwnerId(user.getId());

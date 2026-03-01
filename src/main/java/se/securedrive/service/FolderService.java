@@ -16,11 +16,11 @@ public class FolderService {
     private final FolderRepository folderRepository;
 
     /**
-     * Creates a new folder owned by the given user.
+     * Skapar en ny mapp som ägs av den angivna användaren.
      *
-     * @param name  name of the folder
-     * @param owner authenticated user
-     * @return created folder
+     * @param name  namn på mappen
+     * @param owner autentiserad användare
+     * @return skapad mapp
      */
     public Folder createFolder(String name, User owner) {
         Folder folder = Folder.builder()
@@ -32,10 +32,10 @@ public class FolderService {
     }
 
     /**
-     * Lists folders owned by the user.
+     * Listar mappar som ägs av användaren.
      *
-     * @param owner authenticated user
-     * @return list of folder summaries
+     * @param owner autentiserad användare
+     * @return lista med mapp-sammanfattningar
      */
     public List<FolderSummary> listFolders(User owner) {
         return folderRepository.findByOwnerId(owner.getId())
