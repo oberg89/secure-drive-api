@@ -38,6 +38,10 @@ public class FolderService {
      * @return lista med mapp-sammanfattningar
      */
     public List<FolderSummary> listFolders(User owner) {
+        if (owner == null || owner.getId() == null) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.UNAUTHORIZED, "Användare saknas eller är inte korrekt laddad");
+        }
         return folderRepository.findByOwnerId(owner.getId())
                 .stream()
                 .map(folder -> new FolderSummary(folder.getId(), folder.getName()))

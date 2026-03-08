@@ -1,5 +1,6 @@
 package se.securedrive.security;
 
+import se.securedrive.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,9 +24,9 @@ import java.util.Collections;
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-
+    
+    private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
-    private final UserService userService;
 
     @Override
     protected void doFilterInternal(
@@ -43,20 +44,25 @@ public class JwtFilter extends OncePerRequestFilter {
                 String username = jwtUtil.extractUsername(token);
 
                 // Hämta användaren från databasen baserat på namnet i token
-                User user = userService.getByUsername(username);
-                request.setAttribute("user", user);
-                
-                // Om ingen autentisering finns i kontexten, sätt den nu
-                if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                // Vi använder userRepository direkt för att undvika Exception om användaren inte finns
+                User user = userRepository.findByUsername(username).orElse(null);
+                if (user != null) {
+                    request.setAttribute("user", user);
+
+                    // Om ingen autentisering finns i kontexten, sätt den nu
+                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                } else {
+                    // Om användaren inte finns i databasen (men token var giltig), rensa kontexten
+                    SecurityContextHolder.clearContext();
                 }
             } catch (JwtException ex) {
-                // Vid felaktig token rensas kontexten och 401 returneras
+                // Vid felaktig token rensas kontexten. Vi skickar inte 401 direkt här
+                // för att tillåta filterkedjan att fortsätta (t.ex. för publika endpoints)
                 SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
             }
         }
 

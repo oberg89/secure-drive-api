@@ -6,6 +6,7 @@ import se.securedrive.dto.AuthResponse;
 import se.securedrive.dto.LoginRequest;
 import se.securedrive.dto.RegisterRequest;
 import se.securedrive.service.AuthService;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -15,6 +16,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@RequestBody RegisterRequest request) {
         return authService.register(request);
     }

@@ -31,6 +31,9 @@ public class FileService {
      * @return sparad fil-entitet
      */
     public FileEntity uploadFile(MultipartFile file, Long folderId, User user){
+        if (user == null || user.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Användare saknas eller är inte korrekt laddad");
+        }
         Folder folder = folderRepository.findById(folderId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mappen hittades inte"));
 
@@ -58,6 +61,9 @@ public class FileService {
      * @return fil-entitet
      */
     public FileEntity downloadFile(Long fileId, User user) {
+        if (user == null || user.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Användare saknas eller är inte korrekt laddad");
+        }
         FileEntity file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Filen hittades inte"));
 
@@ -75,6 +81,9 @@ public class FileService {
      * @param user   den autentiserade användaren
      */
     public void deleteFile(Long fileId, User user) {
+        if (user == null || user.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Användare saknas eller är inte korrekt laddad");
+        }
         FileEntity file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Filen hittades inte"));
 

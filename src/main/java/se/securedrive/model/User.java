@@ -37,9 +37,11 @@ public class User {
     @Column(name = "github_id", unique = true)
     private String githubId;
 
+    @Builder.Default
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<Folder> folders;
+    private List<Folder> folders = new java.util.ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<FileEntity> files;
+    private List<FileEntity> files = new java.util.ArrayList<>();
 }

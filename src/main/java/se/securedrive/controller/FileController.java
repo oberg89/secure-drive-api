@@ -1,6 +1,10 @@
 package se.securedrive.controller;
 
 import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ContentDisposition;
@@ -32,9 +36,11 @@ public class FileController {
 
     private final FileService fileService;
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    @Operation(summary = "Ladda upp en fil", description = "Laddar upp en fil till en specifik mapp.")
     public FileSummary uploadFile(
-            @RequestParam MultipartFile file,
+            @Parameter(description = "Filen som ska laddas upp", content = @Content(mediaType = "multipart/form-data"))
+            @RequestPart("file") MultipartFile file,
             @RequestParam Long folderId,
             @AuthenticationPrincipal User user
     ) {
