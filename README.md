@@ -1,171 +1,279 @@
 ﻿# Secure Drive API
 
-Secure Drive API är ett backend-API byggt i **Spring Boot** som fungerar som ett säkert filsystem.
+Secure Drive API är ett backend-API byggt med **Spring Boot** som fungerar som ett säkert filsystem där användare kan skapa mappar och lagra filer.
 
-## Funktioner
-- Registrera användare
-- Logga in och få JWT-token
-- Skapa mappar
-- Ladda upp filer till mappar
-- Lista mappar och filer
-- Ladda ner filer
-- Ta bort filer
+API:t implementerar **REST-principer, HATEOAS, JWT-autentisering och GitHub OAuth2**.
 
-## Tekniker
-- Java 25
-- Spring Boot 4
-- Spring Security (inkl. OAuth2 Client)
-- Spring HATEOAS
-- JWT
-- PostgreSQL
-- JPA / Hibernate
+---
 
-## Autentisering
-### OAuth2 (GitHub) - REKOMMENDERAT
-1. Gå till `/oauth2/authorization/github`
-2. Logga in via GitHub.
+# Funktioner
+
+* Registrera användare
+* Logga in och få JWT-token
+* Logga in via GitHub (OAuth2 / OpenID Connect)
+* Skapa mappar
+* Ladda upp filer till mappar
+* Lista mappar och filer
+* Ladda ner filer
+* Ta bort filer
+
+Alla mappar och filer är kopplade till en användare.
+
+---
+
+# Tekniker
+
+* Java 21+
+* Spring Boot
+* Spring Security
+* Spring OAuth2 Client
+* Spring HATEOAS
+* JWT (JSON Web Token)
+* PostgreSQL
+* Spring Data JPA / Hibernate
+* Swagger / OpenAPI
+
+---
+
+# API Dokumentation
+
+Swagger UI finns på:
+
+http://localhost:8080/swagger-ui.html
+
+Här kan alla endpoints testas direkt i webbläsaren.
+
+---
+
+# Autentisering
+
+API:t stödjer två typer av autentisering.
+
+---
+
+# GitHub OAuth2 (rekommenderat)
+
+1. Gå till:
+
+/oauth2/authorization/github
+
+2. Logga in med ditt GitHub-konto.
+
 3. Efter lyckad inloggning skapas en användare automatiskt i systemet.
 
-### JWT
-1. Logga in via `/api/auth/login`
-2. Backend returnerar JWT
-3. Skicka token i header:
-```
+4. Backend genererar en **JWT-token** och redirectar till Swagger UI.
+
+Exempel:
+
+http://localhost:8080/swagger-ui/index.html?token=JWT_TOKEN
+
+---
+
+# Viktigt om GitHub-token
+
+Token som genereras efter GitHub-login kan användas i externa API-klienter som:
+
+- Bruno
+- Postman
+- curl
+
+Exempel:
+
 Authorization: Bearer <TOKEN>
-```
+
+Denna token fungerar för API-anrop utanför Swagger.
 
 ---
 
-## HATEOAS
-API:et använder hypermedia (HATEOAS). Svar från mappar och filer innehåller nu länkar till relaterade resurser.
-Exempel på svar för en mapp:
-```json
-{
-  "id": 1,
-  "name": "Skola",
-  "_links": {
-    "self": { "href": "http://localhost:8080/api/folders" },
-    "all-folders": { "href": "http://localhost:8080/api/folders" }
-  }
-}
-```
+# Swagger UI
 
-## Starta projektet
-```
-./gradlew bootRun
-```
+Swagger använder **inte automatiskt token från URL:en**.
 
-API körs på:
-http://localhost:8080
+För att testa endpoints i Swagger gör man istället:
 
----
+1. Registrera en användare
 
-## Bruno – API-kommandon
-
-### Registrera användare
 POST /api/auth/register
-```json
+
+```
 {
-  "username": "användarnamn",
-  "password": "Lösenord"
+  "username": "user",
+  "password": "password"
 }
 ```
 
-### Logga in
+2. Logga in
+
 POST /api/auth/login
-```json
+
+```
 {
-  "username": "användarnamn",
-  "password": "Lösenord"
+  "username": "user",
+  "password": "password"
 }
 ```
 
 Svar:
-```json
-{ "token": "JWT_TOKEN" }
+
 ```
+{
+  "token": "JWT_TOKEN"
+}
+```
+
+3. Klicka på **Authorize** i Swagger.
+
+4. Ange:
+
+Authorization: Bearer <TOKEN>
+
+Efter detta kan alla endpoints testas direkt i Swagger.
 
 ---
 
-### Skapa mapp
-POST /api/folders  
+# Mappar
+
+## Skapa mapp
+
+POST /api/folders
+
 Header:
-```
+
 Authorization: Bearer <TOKEN>
-```
 
 Body:
-```json
-{ "name": "Skola" }
+
+```
+{
+  "name": "Skola"
+}
 ```
 
 ---
 
-### Visa mappar
-GET /api/folders  
+## Lista mappar
+
+GET /api/folders
+
+---
+
+# Filer
+
+## Ladda upp fil
+
+POST /api/files/upload
+
 Header:
-```
+
 Authorization: Bearer <TOKEN>
+
+Body (multipart/form-data):
+
+file → fil att ladda upp  
+folderId → ID på mappen
+
+---
+
+## Lista filer
+
+GET /api/files
+
+---
+
+## Ladda ner fil
+
+GET /api/files/{id}
+
+---
+
+## Ta bort fil
+
+DELETE /api/files/{id}
+
+---
+
+# HATEOAS
+
+API:t använder **Spring HATEOAS** och returnerar HAL-JSON.
+
+Exempel:
+
+```
+{
+  "id": 1,
+  "name": "Skola",
+  "_links": {
+    "all-folders": {
+      "href": "http://localhost:8080/api/folders"
+    }
+  }
+}
 ```
 
 ---
 
-### Ladda upp fil
-POST /api/files/upload  
-Header:
-```
-Authorization: Bearer <TOKEN>
-```
+# Säkerhet
 
-Body (Multipart Form):
-- file → välj fil
-- folderId → 1
+API:t är stateless och använder JWT.
 
----
+* Ingen server-session
+* CSRF avstängt
+* Alla endpoints kräver autentisering utom auth-endpoints
 
-### Visa filer
-GET /api/files  
-Header:
-```
-Authorization: Bearer <TOKEN>
-```
+Användare kan **endast komma åt sina egna filer och mappar**.
 
 ---
 
-### Ladda ner fil
-GET /api/files/{id}  
-Header:
-```
-Authorization: Bearer <TOKEN>
-```
+# Starta projektet
+
+Starta servern:
+
+./gradlew bootRun
+
+Servern kör på:
+
+http://localhost:8080
 
 ---
 
-### Ta bort fil
-DELETE /api/files/{id}  
-Header:
-```
-Authorization: Bearer <TOKEN>
-```
+# GitHub OAuth2 konfiguration
+
+För att GitHub-inloggning ska fungera:
+
+1. Skapa en OAuth App på GitHub
+
+2. Sätt:
+
+Homepage URL  
+http://localhost:8080
+
+Authorization callback URL  
+http://localhost:8080/login/oauth2/code/github
+
+3. Lägg in `client-id` och `client-secret` i `application.properties`.
 
 ---
 
-## Säkerhet
-- Stateless (JWT)
-- Ingen session
-- CSRF av
-- Endast /api/auth/** är publikt
+# Projektstruktur
+
+controller  
+service  
+repository  
+model  
+dto  
+security
+
+Arkitekturen följer en **layered architecture**.
 
 ---
 
-## Konfiguration av GitHub OAuth2
-För att OAuth2-inloggning ska fungera måste du skapa en **OAuth App** på GitHub:
-1. Gå till **Settings** -> **Developer settings** -> **OAuth Apps** -> **New OAuth App**.
-2. Sätt `Homepage URL` till `http://localhost:8080`.
-3. Sätt `Authorization callback URL` till `http://localhost:8080/login/oauth2/code/github`.
-4. Kopiera `Client ID` och `Client Secret` till din `application.properties` eller sätt dem som miljövariabler (`GITHUB_CLIENT_ID` och `GITHUB_CLIENT_SECRET`).
+# Sammanfattning
 
----
+Projektet implementerar ett komplett REST-API med:
 
-## Sammanfattning
-Projektet visar ett komplett REST-API med JWT-säkerhet, filhantering och databasstöd.
+* JWT autentisering
+* GitHub OAuth2 login
+* HATEOAS
+* filhantering
+* PostgreSQL databas
+* Swagger API-dokumentation
